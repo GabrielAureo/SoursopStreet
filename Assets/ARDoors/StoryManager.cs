@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using Ink.Runtime;
+using UnityEngine.Events;
 
 public class StoryManager : MonoBehaviour
 {
-
-
     [SerializeField] private TextAsset inkJSONAsset = null;
     private Story story;
+    public DialogueData data { get; private set; } = new DialogueData();
+    public UnityEvent<string> OnDialogueFinished { get; private set; } = new UnityEvent<string>();
 
-    private void Start()
+    private void Awake()
     {
-        StartStory();
+        if (!story) StartStory();
     }
 
     public void StartStory()
@@ -22,33 +23,77 @@ public class StoryManager : MonoBehaviour
         NextDialogue();
     }
 
-    public DialogueData NextDialogue()
+    private bool isOnStreet()
     {
-        if (!story.canContinue) return null;
+        return story.currentTags.Contains("movement_choice");
+    }
 
-        string text = story.Continue();
+    public bool PickRoomDialogue(string roomId)
+    {
+        var isMoving = data.Phase == DialogueData.StoryPhase.MOVING;
+        if (isMoving)
+        {
+            var roomIndex = GameManager.Instance.RoomData.GetRoomIndex(roomId);
+            story.ChooseChoiceIndex(roomIndex);
+            NextDialogue();
+            data.RoomId = roomId;
+        }
 
-        return parseLine(text);
-
-
+        return isMoving;
 
     }
 
-    private DialogueData parseLine(string text)
+    public void NextDialogue()
     {
+        if (!story.canContinue) return;
+        parseLine();
+    }
+
+    private void parseLine()
+    {
+        string text = story.Continue();
         text = text.Trim();
         var parsedString = text.Split(':');
+
+        string dialogue = "";
         if (parsedString.Length > 1)
         {
             var name = parsedString[0];
-            var dialogue = parsedString[1];
-            return new DialogueData(name, dialogue);
+            dialogue = parsedString[1];
+            data.Name = name;
         }
         else
-        {
-            var dialogue = parsedString[0];
-            return new DialogueData(dialogue);
-        }
+            dialogue = parsedString[0];
+
+        data.Dialogue = dialogue;
+
+        var choiceList = new List<DialogueData.Choice>();
+        foreach (var choice in story.currentChoices)
+            choiceList.Add(new DialogueData.Choice()
+            {
+                Label = choice.text.Trim(),
+                OnSelect = delegate
+                {
+                    story.ChooseChoiceIndex(choice.index);
+                },
+
+            });
+
+        data.Choices = choiceList.ToArray();
+
+        if (data.Choices.Length > 0)
+            if (isOnStreet())
+                FinishCurrentDialogue();
+            else
+                data.Phase = DialogueData.StoryPhase.MAKING_CHOICE;
+        else
+            data.Phase = DialogueData.StoryPhase.READING;
+    }
+
+    private void FinishCurrentDialogue()
+    {
+        data.Phase = DialogueData.StoryPhase.MOVING;
+        OnDialogueFinished.Invoke(data.RoomId);
     }
 
 

@@ -1,15 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.Events;
 
 public class DoorController : MonoBehaviour, ARInteractable
 {
     private Animator animator;
     private AudioSource source;
     private DoubleTapBehaviour doubleTapBehaviour;
+    public UnityEvent OnDoorOpen { get; private set; } = new UnityEvent();
 
     [SerializeField] private AudioClip KnockSound;
+
+    private bool open;
 
 
     private void Awake()
@@ -17,13 +20,14 @@ public class DoorController : MonoBehaviour, ARInteractable
         animator = GetComponent<Animator>();
         source = GetComponent<AudioSource>();
         doubleTapBehaviour = new DoubleTapBehaviour(singleKnockAction, doubleKnockAction);
+        open = false;
     }
 
 
     public void OnTap()
     {
-        Debug.Log("Tap");
-        doubleTapBehaviour.Tap();
+        if (!open)
+            doubleTapBehaviour.Tap();
 
     }
 
@@ -34,7 +38,19 @@ public class DoorController : MonoBehaviour, ARInteractable
 
     private void doubleKnockAction()
     {
-        animator.SetTrigger("open");
+        Open();
+    }
+
+    public void Open()
+    {
+        animator.SetBool("Open", true);
+        open = true;
+        OnDoorOpen.Invoke();
+    }
+    public void Close()
+    {
+        animator.SetBool("Open", false);
+        open = false;
     }
 
 }

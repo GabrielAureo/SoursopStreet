@@ -9,6 +9,8 @@ public class GameManager : MonoBehaviour
 
     public StoryManager StoryManager;
 
+    public RoomData RoomData;
+
 
     private void Awake()
     {

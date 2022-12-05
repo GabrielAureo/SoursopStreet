@@ -6,31 +6,36 @@ public class ARTouchController : MonoBehaviour
 {
     private void Update()
     {
+
 #if UNITY_ANDROID && !UNITY_EDITOR
             
         if (Input.touchCount <= 0 || Input.GetTouch(0).phase != TouchPhase.Began) return;
         if (IsOverUI()) return;
 
         var ray = CameraRay();
+        HitTest(ray);
         
-#endif
+#else
 
         var input = Input.GetMouseButtonDown(0);
-        //if (IsOverUI()) return;
+        if (IsOverUI()) return;
         if (input)
         {
             var ray = CameraRay();
             HitTest(ray);
         }
+
+#endif
     }
 
     private bool IsOverUI()
     {
 
 #if UNITY_ANDROID && !UNITY_EDITOR
-    var position = Input.GetTouch(0).position
-#endif
+    var position = Input.GetTouch(0).position;
+#else
         var position = Input.mousePosition;
+#endif
         var eventDataCurrentPosition = new PointerEventData(EventSystem.current)
         {
             position = position
@@ -44,7 +49,6 @@ public class ARTouchController : MonoBehaviour
     {
         RaycastHit[] hits;
         hits = Physics.RaycastAll(ray);
-        Debug.Log(hits);
         if (hits.Length > 0)
         {
             ARInteractable selectedInteractable = null;
@@ -55,7 +59,7 @@ public class ARTouchController : MonoBehaviour
                 if (interactable != null) selectedInteractable = interactable;
 
             }
-            selectedInteractable.OnTap();
+            selectedInteractable?.OnTap();
 
         }
     }

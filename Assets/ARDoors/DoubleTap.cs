@@ -8,11 +8,12 @@ public class DoubleTapBehaviour
     private bool hasSingleTap;
 
     private float lastTapTime;
-    private const float doubleTapInterval = .1f;
+    private const float doubleTapInterval = .4f;
 
     public DoubleTapBehaviour(Action doubleTapAction)
     {
         this.doubleTapAction = doubleTapAction;
+        lastTapTime = 0f;
 
     }
     public DoubleTapBehaviour(Action sigleTapAction, Action doubleTapAction)
@@ -20,6 +21,7 @@ public class DoubleTapBehaviour
         this.doubleTapAction = doubleTapAction;
         this.singleTapAction = sigleTapAction;
         this.hasSingleTap = true;
+        lastTapTime = 0f;
     }
 
     public void Tap()
@@ -40,7 +42,7 @@ public class DoubleTapBehaviour
     {
         var timeSinceLastTap = Time.time - lastTapTime;
         lastTapTime = Time.time;
-        return timeSinceLastTap > doubleTapInterval;
+        return timeSinceLastTap < doubleTapInterval;
     }
     private void doDoubleTap()
     {
