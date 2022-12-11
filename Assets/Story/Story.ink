@@ -81,7 +81,20 @@ Parece que Dona Alexandrina está ocupada. Melhor voltar mais tarde.
 
 === house_777 ===
 = first_mission
-Parece que não há ninguém em casa no momento.
+    Parece que não há ninguém em casa no momento.
+    ->DONE
+
+= second_mission
+    ???: Ora, ora. Mas quem bate na minha porta em plenas 9 da madrugada?
+    -(top) ???: Ah, é você... Seja lá quem seja você. O quê quer comigo?
+    +[Entrega para você]
+    +[Que bicho te mordeu?]
+        ???: Tempo é dinheiro e tenho coisas mais pra fazer do que ser educado com um qualquer que aparece na minha porta.
+        ->top
+    -???: Ah, então é um entregador... Interessante. E suponho que essa seja a minha maleta, não é?
+    Raul: Bom, entregador. Meu nome é Raul Borbas Nepomuceno Sevilla de Camarões III. Mas acredito que Raul já sirva para você.
+    Raul: Antes de você ir, o que acha de ganhar um dinheiro extra?
+    
 ->->
 
 
