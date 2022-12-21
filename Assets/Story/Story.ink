@@ -25,6 +25,7 @@ VAR current_delivery_status = ON_PROGRESS
       -1: -> first_mission
       -2: -> second_mission
       -3: -> third_mission
+      -4: -> final_mission
       -else:
       ->END
     }
@@ -46,6 +47,15 @@ VAR current_delivery_status = ON_PROGRESS
     - -> delivery_in_progress 
 }
 
+= final_mission
+    Jaimo: Ah, já está de volta. 
+    Jaimo: Antes, de tudo, aqui está o seu pagamento pela última entrega.
+    Jaimo: Ah, o cara do 777 deixou um recado aqui pra você. É pra você passar lá na casa dele antes de você terminar o expediente. 
+    Jaimo: Hmm... No que você se meteu, hein novato?
+    Jaimo: Bom, não é da minha conta. Se eu fosse você, não deixaria ele esperando.
+    Jaimo: Até mais. 
+    ->->
+    
 = third_mission_start
     Jaimo: Ah, está de volta novamente. E aí, e aí, como era a casa do granfino?
     Jaimo: O senhor Raul é um grande investidor da nossa empresa. É melhor ter tratado ele com todo o respeito, ou você vai ver.
@@ -63,14 +73,16 @@ VAR current_delivery_status = ON_PROGRESS
 
 = second_mission_start
     Jaimo: Você está de volta. E ai, como foi a primeira entrega?
-    Jaimo: Para agora, você tem duas entregas a fazer. Uma na casa 102 e a outra... Uau! Na casa 777.
+    Jaimo: Sua próxima entrega agora será no... Deixe me ver... na casa 777. Uau!
     Jaimo: O cara da casa 777 é um granfino da maior alta classe. A entrega, aparentemente é essa maleta preta. 
-    Jaimo: Seja lá o que tiver aí, deve custar horrores. Comece levando isso e nem pensar em passar a mão, hein!
-    Jaimo: Depois disso, leve o pacote do 102. O cara é um veterano de guerra, então cuidado com o que fala com ele.
+    Jaimo: Seja lá o que tiver aí, deve custar horrores. Nem pense em passar a mão, hein!
     Jaimo: Ah, pera aí. Quase esqueci. Aqui está seu pagamento pela entrega anterior. Deu 3 reais e a gasolina é por sua conta.
     * [Só isso!?]
     * [Isso é escravidão...]
-    -Jaimo: Bom, não há nada que eu possa fazer. É o valor que a empresa paga. Agora saia daqui e vá fazer as entregas.->->
+    -Jaimo: Bom, não há nada que eu possa fazer. É o valor que a empresa paga.
+    Jaimo: Mas por outro lado, temos vários outros benefícios ótimos, não é? Não dá pra por preço nisso.
+    Jaimo: Agora saia daqui e vá fazer as entregas.
+    ->->
 = first_mission_start 
     Jaimo: Ah, que belo dia. Um solzão desses só uma gelada, né não?
     Jaimo: E aí, novato. Preparado para seu primeiro dia como jovem aprendiz?
@@ -81,17 +93,21 @@ VAR current_delivery_status = ON_PROGRESS
     - Jaimo: Você é um cara de sorte por vestir a camisa da Tramazon. Aqui nós somos mais do que uma equipe, somos família.
     Jaimo: Mas vamos aos negócios. A sua rota é a Rua das Graviolas...
     Jaimo: Deu muita sorte. Essa é uma rua tradicional da cidade. Será uma rota muito tranquila, pode confiar.
-    Jaimo: Sua primeira entrega será na Casa 101. Leve este pacote para a sra. Alexandrina. ->->
+    Jaimo: Sua primeira entrega será na Casa 101. Leve este pacote para a sra. Alexandrina. 
+    ->->
 = delivery_in_progress 
     Jaimo: O que está fazendo aqui? Vá fazer a entrega, novato.
     ->->
     
 === house_101 ===
+<>
 ->decide_mission
 = decide_mission
     {mission_index:
       -1: -> first_mission
       -2: -> second_mission
+      -3: -> third_mission
+      -4: -> no_one_home
       -else:
       ->END
     }
@@ -112,6 +128,30 @@ VAR current_delivery_status = ON_PROGRESS
 
 = third_mission
     Dona Alexandrina: Mas é você de novo. Que ótima supresa.
+    Dona Alexandrina: Nossa, mas que peso que você está levando. Pode deixar aqui no canto, por favor.
+    {accepted_evil_proposal:
+        -> delivery_choice -> continue_delivery
+    - else:
+    Você encosta o saco de adubo em um canto da sala de Dona Alexandrina.
+    }
+    -(continue_delivery)Dona Alexadrina: Obrigado por trazer o adubo para as minhas plantinhas, jovemzinho.
+    Dona Alexadrina: Desde que o Thomas se foi, elas têm sido a minha única companhia. Sem elas, não sei o que faria.
+    Dona Alexadrina: Sabe aquele homem do 777? Ele vem tentando comprar a minha casa a muito tempo, pra poder fazer uma casa de verão.
+    Dona Alexadrina: Eu até considerei aceitar e ir morar com a minha irmã, mas eu preciso pensar nas minhas plantinhas.
+    Dona Alexandrina: E foi nessa casa que o Thomas cresceu. É a minha última lembrança dele. Então, decidi que vou ficar aqui e ninguém me tira.
+    Dona Alexandrina: Ah, cá estou eu tagalerando de novo. Desculpe tomar seu tempo de novo.
+    Dona alendrina: Antes de ir, leve esse pote de bolo pra você. Não precisa se preocupar com o pote. Pode me devolver quando passar aqui de novo. Tchau tchau.
+    ~complete_delivery()
+    ->->
+    
+= delivery_choice 
+    +[Entregar adubo falso]
+        Você entrega o adubo falso lhe dado por Raul.
+        ~ delivered_fake_package = true
+    +[Entregar adubo real]
+        Você entrega o adubo real encomendado por Dona Alexandrina.
+  - ->->
+    
 = second_mission
 ->no_one_home
 
@@ -120,17 +160,65 @@ Parece que Dona Alexandrina está ocupada. Melhor voltar mais tarde.
 ->->
 
 === house_777 ===
+<>
 ->decide_mission
 = decide_mission
     {mission_index:
-      -1: -> first_mission
+      -1: -> no_one_home_777
       -2: -> second_mission
+      -3: -> no_one_home_777
+      -4: -> finale
       -else:
       ->END
     }
-= first_mission
+    
+    
+= finale
+{ not accepted_evil_proposal:
+    ->clean_hands_ending
+} 
+Raul: Ah, é você entregador. Vejo que recebeu meu recado.
+Raul: E então, quais são as novidades?
+{delivered_fake_package: 
+    ->helped_raul_ending 
+   -else:
+    ->betrayed_raul_ending
+}
+
+= helped_raul_ending
++[Entreguei o pacote]
+Raul: Excelente notícia. Absolutamente EX-CE-LEN-TE!
+Raul: Nem acredito que a velha cedeu. Depois de tantas tentativas fracassadas...
+Raul: Você não consegue imaginar a minha frustação quando ela se recusou mesmo depois de eu ter dado um fim naquele filho dela.
+Raul: Mas isso agora são mágoas passadas. Felizmente tudo deu certo no final.
+Raul: Aqui está sua recompensa, entregador. Agora vaze daqui, preciso começar os preparativos para a obra.
+Raul: Mas que dia feliiiz!
+Evil Ending #ending
+-> END
+
+= betrayed_raul_ending
++[Decidi não entregar o pacote]
+Raul: VOCÊ O QUÊ?
+Raul: VOCÊ SABE O QUE VOCÊ ME CUSTOU?
+Raul: Esse é o seu fim. Você sequer sabe quem eu sou???
+Raul: Se você não queria me ajudar, ao menos dissesse antes, seu canalha.
+Raul: Saiba que a sua traição não ficará impune. Pode já começar a mandar currículos, pois irei pedir sua cabeça agora mesmo, entregador.
+Bad Ending #ending
+->END
+
+= clean_hands_ending
+Raul: Bom, pelo visto recebeu minha mensagem, entregador.
+Raul: Você deve estar se sentindo muito virtuoso. Ó, tão correto e íntegro por ter ajudado uma velhinha.
+Raul: Mas a verdade é que tudo que você fez foi prolongar a sua mediocridade.
+Raul: Eu te ofereci uma oportunidade de ouro e você cuspiu nela, a troco de nada.
+Raul: Espero que esteja satisfeito.
+Normal Ending #ending
+->END
+
+
+= no_one_home_777
     Parece que não há ninguém em casa no momento.
-    ->DONE
+    ->->
 
 = second_mission
 { stopping: 
@@ -166,7 +254,7 @@ Parece que Dona Alexandrina está ocupada. Melhor voltar mais tarde.
     
     +[Não tenho interesse]
         Raul: Nem se eu te oferecer essa maleta que está nas suas mãos?
-        Ao abrir a maleta e se depara com inúmeras cédulas de dinheiro novas. Você fica com dificuldade de até mesmo estimar quanto pode haver ali.
+        Ao abrir a maleta e se depara com inúmeras cédulas de dinheiro novas. Você fica com dificuldade de até mesmo estimar quanto pode haver.
         Raul: Centro de cinquenta mil e quinhentos e vinte e três reais. Nada mais e nada menos.
         Raul: E aí, o que me diz?
         ++[Eu topo]
@@ -175,8 +263,8 @@ Parece que Dona Alexandrina está ocupada. Melhor voltar mais tarde.
         - ->accept_proposal
         
     == accept_proposal
-    Raul: Então, com o verão chegando, acontece que eu quero presentear uma pessoa especial com um belo PISCINÃO.
-    Raul: E essa pessoa especial não é ninguém menos do que EU!
+    Raul: Então, com o verão chegando, acontece que eu quero presentear uma pessoa especial e muito importante com uma belíssima casa de verão com piscina e tudo mais.
+    Raul: E essa pessoa especial não é ninguém menos do que EU, Raul! Hahahaha~
     Raul: Pois bem, acontece que aqui nessa rua tem um lugar absolutamente PER-FEI-TO para construir minha piscina, com uma incidência perfeita de sol no alto da tarde e aquele delicioso ventinho de fim de tarde.
     Raul: Mas infelizmente, atualmente tem uma casa horrenda, de uma velha cabeça dura justamente onde quero construir minha piscina.
     Raul: Você deve ter conhecido a velha do 101 durante as suas entregas, certo? Dona Cotinha ou algo do tipo. Então, ela quem está entre mim e meu merecido verão. 
@@ -193,8 +281,3 @@ Parece que Dona Alexandrina está ocupada. Melhor voltar mais tarde.
         Raul: Uma pena. Mas saiba que a oferta ainda está de pé. Volte aqui quando quiser falar de negócios, entregador.
         ~ complete_delivery()
         ->->
-        
- 
-    
-
-

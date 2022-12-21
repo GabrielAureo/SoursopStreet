@@ -65,7 +65,7 @@ public class StoryManager : MonoBehaviour
         else
             dialogue = parsedString[0];
 
-        data.Dialogue = dialogue;
+        data.Dialogue = dialogue.Trim();
 
         var choiceList = new List<DialogueData.Choice>();
         foreach (var choice in story.currentChoices)
